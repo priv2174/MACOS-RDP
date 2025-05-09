@@ -8,7 +8,7 @@ on:
 
 jobs:
   setup-vnc-ngrok:
-    runs-on: macos-14  # You need a macOS runner
+    runs-on: macos-latest  # You need a macOS runner
 
     steps:
       - name: Check out code
@@ -16,15 +16,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install tigervnc ngrok
+          brew install x11vnc ngrok && ngrok authtoken 2rHguGiAlDVeEp6jIbkzCnPxXhb_3Mw82pryyzB9hqEhyeDpT  # Install x11vnc instead of TigerVNC
 
       - name: Start VNC server
         run: |
-          vncserver :1  # Start VNC server on port 5901 && ngrok authtoken 2rHguGiAlDVeEp6jIbkzCnPxXhb_3Mw82pryyzB9hqEhyeDpT
+          x11vnc -display :0 -nopw -listen localhost -xkb  # Start the x11vnc server
 
       - name: Start ngrok
         run: |
-          ngrok tcp 5901 > /tmp/ngrok.log &
+          ngrok tcp 5900 > /tmp/ngrok.log &  # Expose the VNC server on port 5900
           sleep 5
           cat /tmp/ngrok.log | grep -m 1 "tcp://"  # Extract ngrok public URL
           
@@ -32,3 +32,4 @@ jobs:
         run: |
           ngrok_url=$(cat /tmp/ngrok.log | grep -m 1 "tcp://" | awk '{print $1}')
           echo "VNC server is available at $ngrok_url"
+
